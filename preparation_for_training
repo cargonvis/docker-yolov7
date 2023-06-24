@@ -1,0 +1,125 @@
+#!/bin/bash
+
+# Prompt the user to enter the images folder name
+read -p "Enter the images folder name: " images_folder_name
+
+# Prompt the user to enter the project name
+read -p "Enter the project name: " project_name
+
+# Prompt the user to enter the number of classes
+read -p "Enter the number of classes: " num_classes
+
+# Prompt the user to enter the names of the classes separated by spaces
+read -p "Enter the names of the classes (separated by spaces): " class_names
+
+# Base path (current directory)
+base_path=$(pwd)
+
+# Source directory where the images and text files are located
+source_dir="$base_path/$images_folder_name"
+
+# Destination directories for each split
+train_images_dir="$base_path/yolov7/custom_data/$project_name/train/images"
+train_labels_dir="$base_path/yolov7/custom_data/$project_name/train/labels"
+test_images_dir="$base_path/yolov7/custom_data/$project_name/test/images"
+test_labels_dir="$base_path/yolov7/custom_data/$project_name/test/labels"
+val_images_dir="$base_path/yolov7/custom_data/$project_name/validation/images"
+val_labels_dir="$base_path/yolov7/custom_data/$project_name/validation/labels"
+
+# Create destination directories if they don't exist
+mkdir -p "$train_images_dir"
+mkdir -p "$train_labels_dir"
+mkdir -p "$test_images_dir"
+mkdir -p "$test_labels_dir"
+mkdir -p "$val_images_dir"
+mkdir -p "$val_labels_dir"
+
+# Percentages for each split
+train_percentage=70
+test_percentage=10
+val_percentage=20
+
+# Move classes.txt file to each split directory
+cp "$source_dir/classes.txt" "$base_path/yolov7/custom_data/$project_name/train/"
+cp "$source_dir/classes.txt" "$base_path/yolov7/custom_data/$project_name/test/"
+mv "$source_dir/classes.txt" "$base_path/yolov7/custom_data/$project_name/validation/"
+
+# Calculate the number of files for each split
+total_files=$(ls "$source_dir"/*.jpg | wc -l)
+train_count=$((total_files * train_percentage / 100))
+test_count=$((total_files * test_percentage / 100))
+val_count=$((total_files * val_percentage / 100))
+
+# Function to move files randomly to directories
+move_random_files() {
+    local count=$1
+    local source_files=("$source_dir"/*.jpg)
+    local total_source_files=${#source_files[@]}
+
+    for ((i=0; i<count; i++))
+    do
+        # Generate a random index within the range of available files
+        index=$((RANDOM % total_source_files))
+        
+        # Get the randomly chosen file
+        file="${source_files[index]}"
+        
+        # Extract the file number from the filename
+        file_number=$(basename "$file" .jpg)
+        
+        # Move the image file
+        mv "$file" "$2/$file_number.jpg"
+        
+        # Move the corresponding text file
+        mv "${file%.*}.txt" "$3/$file_number.txt"
+        
+        # Remove the moved file from the array
+        source_files=("${source_files[@]:0:index}" "${source_files[@]:index+1}")
+        total_source_files=$((total_source_files - 1))
+    done
+}
+
+# Move files for each split
+move_random_files "$train_count" "$train_images_dir" "$train_labels_dir"
+move_random_files "$test_count" "$test_images_dir" "$test_labels_dir"
+move_random_files "$val_count" "$val_images_dir" "$val_labels_dir"
+
+# Move the remaining files to the train split
+for file in "$source_dir"/*.jpg; do
+    if [ -f "$file" ]; then
+        file_number=$(basename "$file" .jpg)
+        mv "$file" "$train_images_dir/$file_number.jpg"
+        mv "$source_dir/$file_number.txt" "$train_labels_dir/$file_number.txt"
+    fi
+done
+
+# Create the custom dataset file inside the train_images_dir
+custom_yaml_file="$base_path/yolov7/custom_data/$project_name/custom.yaml"
+
+echo "# Custom Dataset" > "$custom_yaml_file"
+echo "# train and val data as 1) directory: path/images/, 2) file: path/images.txt, or 3) list: [path1/images/, path2/images/]" >> "$custom_yaml_file"
+echo "train: $base_path/yolov7/custom_data/$project_name/train/" >> "$custom_yaml_file"
+echo "val: $base_path/yolov7/custom_data/$project_name/validation/" >> "$custom_yaml_file"
+echo "test: $base_path/yolov7/custom_data/$project_name/test/" >> "$custom_yaml_file"
+echo "# number of classes" >> "$custom_yaml_file"
+echo "nc: $num_classes" >> "$custom_yaml_file"
+echo "# class names" >> "$custom_yaml_file"
+classes=$(printf "'%s'," $class_names)
+classes=${classes%,}
+
+echo "names: [$classes]" >> "$custom_yaml_file"
+
+rm -rf $source_dir
+
+# Download weights in yolov7 folder
+wget -P $base_path/yolov7/ https://github.com/WongKinYiu/yolov7/releases/download/v0.1/yolov7_training.pt
+
+# Create yaml file for training
+# Read the content of the original file
+content=$(<"$base_path/yolov7/cfg/training/yolov7.yaml")
+
+# Modify the content to update the number of classes
+modified_content="${content/nc: 1/nc: $num_classes}"
+
+# Write the modified content to the new file
+echo "$modified_content" > "$base_path/yolov7/cfg/training/yolov7_custom.yaml"
