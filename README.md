@@ -202,7 +202,7 @@ If you don't have Docker installed, follow the instructions [here](https://www.d
      --img-size 640 \
      --source custom_data/nameofyourproject/test/images/mytestimage.jpg
     ```
-    Replace nameofyourproject with your project name, and modify the command to specify your test image and adjust the confidence threshold if needed.
+    Replace nameofyourproject with your project name, and modify the command to specify your test image and adjust the confidence threshold if needed. To visualize the prediction in the image, go to the "/runs/detect/" directory and use a tool like "fim" for viewing. Example: fim mytestimage.jpg
 
 13. To test predictions on a video, place the video file in the yolov7/ directory and run the following command:
     ```
@@ -211,10 +211,8 @@ If you don't have Docker installed, follow the instructions [here](https://www.d
      --img-size 640 \
      --source myvideoname.mp4 --no-trace
     ```
-    Replace myvideoname.mp4 with your video file name, and adjust the confidence threshold if desired.
-   
-14. To view the video with the predictions, navigate to /runs/test/yolov7-custom/ and use a tool like mplayer. Example: mplayer myvideo.mp4.
-
+    Replace myvideoname.mp4 with your video file name, and adjust the confidence threshold if desired. To view the video with the predictions, navigate to /runs/test/yolov7-custom/ and use a tool like mplayer. Example: mplayer myvideo.mp4.
+    
 _For more examples, please refer to the [YOLOv7 Documentation](https://github.com/WongKinYiu/yolov7)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
