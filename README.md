@@ -284,12 +284,12 @@ Project Link: [https://github.com/cargonvis/docker-yolov7](https://github.com/ca
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-Some helpful websites
+This project extends its gratitude to the following resources for their valuable contributions:
 
-* [https://github.com/WongKinYiu/yolov7](https://github.com/WongKinYiu/yolov7)
-* [https://github.com/developer0hye/Yolo_Label](https://github.com/developer0hye/Yolo_Label)
-* [https://github.com/cvdfoundation/open-images-dataset](https://github.com/cvdfoundation/open-images-dataset)
-* [https://mpolinowski.github.io/docs/IoT-and-Machine-Learning/ML/2023-01-10-yolov7_custom_data/2023-01-10/](https://mpolinowski.github.io/docs/IoT-and-Machine-Learning/ML/2023-01-10-yolov7_custom_data/2023-01-10/)
+* [YOLOv7 Github repository](https://github.com/WongKinYiu/yolov7)
+* [YOLO Label Github repository](https://github.com/developer0hye/Yolo_Label)
+* [Open Images Dataset Github repository](https://github.com/cvdfoundation/open-images-dataset)
+* [Tutorial for training YOLOv7 from scratch](https://mpolinowski.github.io/docs/IoT-and-Machine-Learning/ML/2023-01-10-yolov7_custom_data/2023-01-10/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
